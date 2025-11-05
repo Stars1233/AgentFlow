@@ -228,14 +228,15 @@ def construct_solver(llm_engine_name : str = "gpt-4o",
     # Instantiate Memory
     memory = Memory()
 
-    # Instantiate Executor
+    # Instantiate Executor with tool instances cache
     executor = Executor(
         # llm_engine_name=llm_engine_name,
         llm_engine_name="dashscope",
         root_cache_dir=root_cache_dir,
         verbose=verbose,
         # base_url=base_url,
-        temperature=temperature
+        temperature=temperature,
+        tool_instances_cache=initializer.tool_instances_cache  # Pass the cached tool instances
     )
 
     # Instantiate Solver
@@ -270,7 +271,7 @@ def parse_arguments():
     return parser.parse_args()
     
 def main(args):
-    tool_engine=["dashscope","dashscope","Default","Default"]
+    tool_engine=["dashscope-qwen2.5-3b-instruct","dashscope-qwen2.5-3b-instruct","Default","Default"]
     solver = construct_solver(
         llm_engine_name=args.llm_engine_name,
         enabled_tools=["Base_Generator_Tool","Python_Coder_Tool","Google_Search_Tool","Wikipedia_Search_Tool"],

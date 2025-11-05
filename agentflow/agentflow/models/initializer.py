@@ -7,13 +7,13 @@ from typing import Dict, Any, List, Tuple
 import time
 
 class Initializer:
-    def __init__(self, 
-    enabled_tools: List[str] = [], 
-    tool_engine: List[str] = [], 
-    model_string: str = None, 
-    verbose: bool = False, 
-    vllm_config_path: str = None, 
-    base_url: str = None, 
+    def __init__(self,
+    enabled_tools: List[str] = [],
+    tool_engine: List[str] = [],
+    model_string: str = None,
+    verbose: bool = False,
+    vllm_config_path: str = None,
+    base_url: str = None,
     check_model: bool = True):
 
         self.toolbox_metadata = {}
@@ -27,6 +27,10 @@ class Initializer:
         self.vllm_config_path = vllm_config_path
         self.base_url = base_url
         self.check_model = check_model
+
+        # Add tool instance cache - stores instantiated tools with their engines
+        self.tool_instances_cache = {}
+
         print("\n==> Initializing agentflow...")
         print(f"Enabled tools: {self.enabled_tools} with {self.tool_engine}")
         print(f"LLM engine name: {self.model_string}")
@@ -167,8 +171,13 @@ class Initializer:
                                         tool_instance = obj(model_string=engine)
                                 else:
                                     tool_instance = obj()
+
                                 # Use the external tool name (from TOOL_NAME) as the key
                                 metadata_key = getattr(tool_instance, 'tool_name', name)
+
+                                # Cache the tool instance for later use
+                                self.tool_instances_cache[metadata_key] = tool_instance
+                                print(f"Cached tool instance: {metadata_key} with engine: {getattr(tool_instance, 'model_string', 'default')}")
 
                                 self.toolbox_metadata[metadata_key] = {
                                     'tool_name': getattr(tool_instance, 'tool_name', 'Unknown'),
